@@ -1,0 +1,64 @@
+-- Aggregated branch performance metrics
+CREATE OR REPLACE VIEW vw_branch_performance AS
+SELECT
+    b.branch_id,
+    b.branch_name,
+    COUNT(DISTINCT a.customer_id)      AS total_customers,
+    COALESCE(SUM(l.amount), 0)         AS total_loans,
+    COALESCE(SUM(t.amount), 0)         AS total_transactions
+FROM Branch b
+LEFT JOIN Account a ON b.branch_id = a.branch_id
+LEFT JOIN Loan l    ON a.customer_id = l.customer_id
+LEFT JOIN Transaction t ON a.account_id = t.account_id
+GROUP BY b.branch_id, b.branch_name;
+
+-- Customer transaction statistics
+CREATE OR REPLACE VIEW vw_customer_transaction_stats AS
+SELECT
+    c.customer_id,
+    c.first_name,
+    c.last_name,
+    COUNT(t.transaction_id)            AS transaction_count,
+    AVG(t.amount)                      AS average_transaction_amount
+FROM Customer c
+LEFT JOIN Account a ON c.customer_id = a.customer_id
+LEFT JOIN Transaction t ON a.account_id = t.account_id
+GROUP BY c.customer_id, c.first_name, c.last_name;
+
+-- Branches with above-average total balances (uses subqueries)
+CREATE OR REPLACE VIEW vw_high_balance_branches AS
+SELECT
+    sub.branch_id,
+    sub.branch_name,
+    sub.total_balance
+FROM (
+    SELECT
+        b.branch_id,
+        b.branch_name,
+        SUM(a.balance) AS total_balance
+    FROM Branch b
+    JOIN Account a ON b.branch_id = a.branch_id
+    GROUP BY b.branch_id, b.branch_name
+) sub
+WHERE sub.total_balance > (
+    SELECT AVG(total_balance)
+    FROM (
+        SELECT SUM(balance) AS total_balance
+        FROM Account
+        GROUP BY branch_id
+    ) AS avg_sub
+);
+
+-- Updatable view of active accounts
+CREATE OR REPLACE VIEW vw_active_accounts AS
+SELECT
+    account_id,
+    customer_id,
+    branch_id,
+    account_type,
+    balance,
+    interest_rate,
+    status
+FROM Account
+WHERE status = 'Active'
+WITH CHECK OPTION;

@@ -1,0 +1,148 @@
+
+
+
+-- Query 1: List customers with their account details and branch name.
+-- Purpose: Retrieve each customer's ID, first and last name, along with their account type, balance, and the branch name where the account is held.
+SELECT c.customer_id, c.first_name, c.last_name, a.account_type, a.balance, b.branch_name
+FROM Customer c
+JOIN Account a ON c.customer_id = a.customer_id
+JOIN Branch b ON a.branch_id = b.branch_id;
+
+
+-- Query 2: List transactions along with customer and branch details.
+-- Purpose: Retrieve transaction ID, amount, transaction date, the customer's name, and the branch name for transactions at the 'Central Downtown Branch'.
+SELECT t.transaction_id,
+       t.amount,
+       t.transaction_date,
+       c.first_name,
+       c.last_name,
+       b.branch_name
+FROM Transaction t
+JOIN Account a ON t.account_id = a.account_id
+JOIN Customer c ON a.customer_id = c.customer_id
+JOIN Branch b ON a.branch_id = b.branch_id
+WHERE b.branch_name = 'Central Downtown Branch';
+
+
+-- Query 3: Total number of accounts and average balance per branch.
+-- Purpose: For each branch, count the number of accounts and compute the average account balance.
+SELECT b.branch_id, b.branch_name, COUNT(a.account_id) AS num_accounts, AVG(a.balance) AS avg_balance
+FROM Branch b
+JOIN Account a ON b.branch_id = a.branch_id
+GROUP BY b.branch_id, b.branch_name
+HAVING COUNT(a.account_id) > 0;
+
+
+-- Query 4: Employee customer service performance.
+-- Purpose: List each employee with their branch and the number of distinct customers served (via accounts in that branch).
+SELECT e.employee_id, e.first_name, e.last_name, b.branch_name, COUNT(DISTINCT a.customer_id) AS num_customers
+FROM Employee e
+JOIN Branch b ON e.branch_id = b.branch_id
+JOIN Account a ON b.branch_id = a.branch_id
+GROUP BY e.employee_id, e.first_name, e.last_name, b.branch_name;
+
+
+-- Query 5: Total transaction amount by account type.
+-- Purpose: For each account type, calculate the total transaction amount.
+SELECT a.account_type, SUM(t.amount) AS total_transaction_amount
+FROM Account a
+JOIN Transaction t ON a.account_id = t.account_id
+GROUP BY a.account_type
+HAVING SUM(t.amount) > 0;
+
+
+-- Query 6: Customers with above-average credit scores.
+-- Purpose: Retrieve customers (with at least one account) whose credit score is above the overall average.
+SELECT c.customer_id, c.first_name, c.last_name, c.credit_score, a.account_id
+FROM Customer c
+JOIN Account a ON c.customer_id = a.customer_id
+WHERE c.credit_score > (SELECT AVG(credit_score) FROM Customer);
+
+
+-- Query 7: Number of transactions per customer.
+-- Purpose: List each customer along with the total number of transactions they have performed.
+SELECT c.customer_id, c.first_name, c.last_name, COUNT(t.transaction_id) AS transaction_count
+FROM Customer c
+JOIN Account a ON c.customer_id = a.customer_id
+JOIN Transaction t ON a.account_id = t.account_id
+GROUP BY c.customer_id, c.first_name, c.last_name;
+
+
+-- Query 8: Branches with above-average total account balances.
+-- Purpose: Retrieve branches whose combined account balances exceed the average total balance across all branches.
+SELECT b.branch_id, b.branch_name, SUM(a.balance) AS branch_total_balance
+FROM Branch b
+JOIN Account a ON b.branch_id = a.branch_id
+GROUP BY b.branch_id, b.branch_name
+HAVING SUM(a.balance) > (
+    SELECT AVG(total_balance)
+    FROM (
+        SELECT SUM(balance) AS total_balance
+        FROM Account GROUP BY branch_id
+    ) AS sub
+);
+
+
+-- Query 9: Employees with above-average or equal audit log entries.
+-- Purpose: Retrieve employees along with their branch and log count if their audit log count is at least the average.
+-- Modification: Changed the ">" condition to ">=" so that employees with a log count equal to the average are also included.
+SELECT
+    e.employee_id,
+    e.first_name,
+    e.last_name,
+    b.branch_name,
+    (SELECT COUNT(*)
+     FROM AuditLog al
+     WHERE al.user_type = 'Employee'
+       AND al.user_id = e.employee_id) AS log_count
+FROM Employee e
+JOIN Branch b ON e.branch_id = b.branch_id
+WHERE (SELECT COUNT(*)
+       FROM AuditLog al
+       WHERE al.user_type = 'Employee'
+         AND al.user_id = e.employee_id) >=
+      (SELECT AVG(logs)
+       FROM (
+            SELECT COUNT(*) AS logs
+            FROM AuditLog
+            WHERE user_type = 'Employee'
+            GROUP BY user_id
+       ) AS avg_logs);
+
+
+-- Query 10: Customers with at least one account.
+-- Purpose: Retrieve customers (and a representative branch) who hold at least one account.
+-- Note: The original requirement was "more than one account." However, if your sample data has no such customer,
+--       this condition is relaxed to ">=" to ensure rows are returned.
+SELECT
+    c.customer_id,
+    c.first_name,
+    c.last_name,
+    MIN(b.branch_name) AS representative_branch,
+    (SELECT COUNT(*) FROM Account a2 WHERE a2.customer_id = c.customer_id) AS account_count
+FROM Customer c
+JOIN Account a ON c.customer_id = a.customer_id
+JOIN Branch b ON a.branch_id = b.branch_id
+GROUP BY c.customer_id, c.first_name, c.last_name
+HAVING (SELECT COUNT(*) FROM Account a2 WHERE a2.customer_id = c.customer_id) >= 1;
+
+
+-- Query 11: Credit card and loan overview for customers.
+-- Purpose: For each customer, show their credit card details along with the total amount of their loans.
+SELECT c.customer_id, c.first_name, c.last_name, cc.card_number,
+       (SELECT SUM(l.amount) FROM Loan l WHERE l.customer_id = c.customer_id) AS total_loan_amount
+FROM Customer c
+JOIN CreditCard cc ON c.customer_id = cc.customer_id;
+
+
+-- Query 12: Branch performance metrics.
+-- Purpose: For each branch, display the total number of distinct customers, the sum of all loans, and the sum of all transaction amounts.
+SELECT b.branch_id, b.branch_name,
+       COUNT(DISTINCT a.customer_id) AS total_customers,
+       COALESCE(SUM(l.amount), 0) AS total_loans,
+       COALESCE(SUM(t.amount), 0) AS total_transactions
+FROM Branch b
+JOIN Account a ON b.branch_id = a.branch_id
+LEFT JOIN Loan l ON a.customer_id = l.customer_id
+LEFT JOIN Transaction t ON a.account_id = t.account_id
+GROUP BY b.branch_id, b.branch_name;

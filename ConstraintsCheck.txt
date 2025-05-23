@@ -1,0 +1,80 @@
+---------------------------------------------------------------
+-- 1. Duplicate Primary Key Violation (Integrity Constraint)
+-- Description: This script attempts to insert a row into the Branch table
+-- with a primary key value that already exists (branch_id = 1).
+---------------------------------------------------------------
+INSERT INTO Branch (branch_id, branch_name, address, phone)
+VALUES (1, 'Duplicate Branch', 'Duplicate Address', '555-0123');
+
+---------------------------------------------------------------
+-- 2. Duplicate Unique Value Violation (Unique Constraint)
+-- Description: This script tries to insert a new branch with a phone number
+-- that already exists (phone '555-0101') in the Branch table.
+---------------------------------------------------------------
+INSERT INTO Branch (branch_id, branch_name, address, phone)
+VALUES (11, 'New Branch', 'New Address', '555-0101');
+
+---------------------------------------------------------------
+-- 3. CHECK Constraint Violation on Customer.credit_score
+-- Description: This script attempts to insert a Customer with a credit score
+-- outside the allowed range (300-850), here using 250.
+---------------------------------------------------------------
+INSERT INTO Customer (customer_id, first_name, last_name, date_of_birth, email, phone, address, identification_number, credit_score)
+VALUES (11, 'Test', 'User', '1990-01-01', 'test.user@example.com', '555-1111', 'Test Address', 'ID1100', 250);
+
+---------------------------------------------------------------
+-- 4. NOT NULL Constraint Violation on Customer.first_name
+-- Description: This script attempts to insert a Customer record with a NULL value
+-- in the first_name column, which is defined as NOT NULL.
+---------------------------------------------------------------
+INSERT INTO Customer (customer_id, first_name, last_name, date_of_birth, email, phone, address, identification_number, credit_score)
+VALUES (12, NULL, 'User', '1990-01-01', 'test.user2@example.com', '555-2222', 'Test Address', 'ID1101', 700);
+
+---------------------------------------------------------------
+-- 5. Referential Integrity Violation on Account.customer_id
+-- Description: This script attempts to insert an Account with a customer_id (999)
+-- that does not exist in the Customer table.
+---------------------------------------------------------------
+INSERT INTO Account (account_id, customer_id, branch_id, account_type, balance)
+VALUES (11, 999, 1, 'Checking', 1000.00);
+
+---------------------------------------------------------------
+-- 6. CHECK Constraint Violation on Account.balance
+-- Description: This script attempts to update an Account's balance to a negative value,
+-- which violates the CHECK constraint ensuring balance is >= 0.
+---------------------------------------------------------------
+UPDATE Account
+SET balance = -500.00
+WHERE account_id = 1;
+
+---------------------------------------------------------------
+-- 7. Referential Integrity Violation on Transaction.account_id
+-- Description: This script attempts to insert a Transaction with an account_id (999)
+-- that does not exist in the Account table.
+---------------------------------------------------------------
+INSERT INTO Transaction (transaction_id, account_id, transaction_type, amount, transaction_date)
+VALUES (11, 999, 'Deposit', 100.00, CURRENT_DATE);
+
+---------------------------------------------------------------
+-- 8. Duplicate Primary Key in Transaction (Integrity Constraint)
+-- Description: This script attempts to insert a Transaction with a transaction_id
+-- that already exists (transaction_id = 1), violating the primary key constraint.
+---------------------------------------------------------------
+INSERT INTO Transaction (transaction_id, account_id, transaction_type, amount, transaction_date)
+VALUES (1, 1, 'Deposit', 100.00, CURRENT_DATE);
+
+---------------------------------------------------------------
+-- 9. CHECK Constraint Violation on Transaction.amount
+-- Description: This script attempts to insert a Transaction with an amount of 0.00,
+-- which violates the CHECK constraint that requires the amount to be greater than 0.
+---------------------------------------------------------------
+INSERT INTO Transaction (transaction_id, account_id, transaction_type, amount, transaction_date)
+VALUES (12, 1, 'Deposit', 0.00, CURRENT_DATE);
+
+---------------------------------------------------------------
+-- 10. NOT NULL Constraint Violation on CreditCard.card_number
+-- Description: This script attempts to insert a CreditCard record with a NULL value
+-- for the card_number, violating the NOT NULL constraint.
+---------------------------------------------------------------
+INSERT INTO CreditCard (card_id, customer_id, card_number, expiration_date, credit_limit)
+VALUES (11, 1, NULL, '2026-12-31', 5000.00);

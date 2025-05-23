@@ -1,0 +1,121 @@
+CREATE TYPE account_type_enum AS ENUM ('Checking', 'Savings', 'Credit');
+CREATE TYPE account_status_enum AS ENUM('Active', 'Inactive', 'Flagged');
+CREATE TYPE transaction_type_enum AS ENUM ('Deposit', 'Withdrawal', 'Transfer', 'Payment');
+CREATE TYPE credit_card_status_enum AS ENUM ('Active', 'Blocked', 'Closed');
+CREATE TYPE loan_type_enum AS ENUM ('Personal', 'Home', 'Auto', 'Business');
+CREATE TYPE loan_status_enum AS ENUM ('Pending', 'Approved', 'Rejected', 'Active', 'Closed');
+CREATE TYPE employee_role_enum AS ENUM ('Teller', 'Loan Officer', 'Administrator', 'IT', 'Manager');
+CREATE TYPE user_type_enum AS ENUM ('Customer', 'Employee');
+
+CREATE TABLE Branch (
+    branch_id INT PRIMARY KEY,
+    branch_name VARCHAR(100) NOT NULL,
+    address TEXT NOT NULL,
+    phone VARCHAR(20) UNIQUE NOT NULL
+);
+
+CREATE TABLE Customer (
+    customer_id INT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    address TEXT NOT NULL,
+    identification_number VARCHAR(50) UNIQUE NOT NULL,
+    credit_score INT CHECK (credit_score BETWEEN 300 AND 850),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Account (
+    account_id INT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    branch_id INT NOT NULL,
+    account_type account_type_enum NOT NULL,
+    balance DECIMAL(15,2) NOT NULL CHECK (balance >= 0),
+    interest_rate DECIMAL(5,2),
+    status account_status_enum DEFAULT 'Active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE,
+    FOREIGN KEY (branch_id) REFERENCES Branch(branch_id) ON DELETE CASCADE
+);
+
+CREATE TABLE Beneficiary (
+    beneficiary_id INT PRIMARY KEY,
+    beneficiary_name VARCHAR(100) NOT NULL,
+    relationship VARCHAR(50) NOT NULL
+);
+
+-- Junction Table for M:N Account-Beneficiary Relationship
+CREATE TABLE AccountBeneficiary (
+    account_id INT NOT NULL,
+    beneficiary_id INT NOT NULL,
+    PRIMARY KEY (account_id, beneficiary_id),
+    FOREIGN KEY (account_id) REFERENCES Account(account_id) ON DELETE CASCADE,
+    FOREIGN KEY (beneficiary_id) REFERENCES Beneficiary(beneficiary_id) ON DELETE CASCADE
+);
+
+CREATE TABLE Transaction (
+    transaction_id INT PRIMARY KEY,
+    account_id INT NOT NULL,
+    transaction_type transaction_type_enum NOT NULL,
+    amount DECIMAL(15,2) NOT NULL CHECK (amount > 0),
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    transaction_date DATE NOT NULL,
+    FOREIGN KEY (account_id) REFERENCES Account(account_id) ON DELETE CASCADE
+);
+
+CREATE TABLE CreditCard (
+    card_id INT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    card_number VARCHAR(16) UNIQUE NOT NULL,
+    expiration_date DATE NOT NULL,
+    credit_limit DECIMAL(15,2) NOT NULL,
+    status credit_card_status_enum DEFAULT 'Active',
+    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE
+);
+
+CREATE TABLE Loan (
+    loan_id INT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    loan_type loan_type_enum NOT NULL,
+    amount DECIMAL(15,2) NOT NULL CHECK (amount > 0),
+    interest_rate DECIMAL(5,2) NOT NULL,
+    term_months INT NOT NULL CHECK (term_months > 0),
+    status loan_status_enum NOT NULL,
+    date_taken_out DATE NOT NULL,
+    FOREIGN KEY (customer_id) REFERENCES Customer(customer_id) ON DELETE CASCADE
+);
+
+CREATE TABLE LoanPayment (
+    payment_id INT PRIMARY KEY,
+    loan_id INT NOT NULL,
+    amount_paid DECIMAL(15,2) NOT NULL CHECK (amount_paid > 0),
+    payment_date DATE NOT NULL,
+    FOREIGN KEY (loan_id) REFERENCES Loan(loan_id) ON DELETE CASCADE
+);
+
+
+
+CREATE TABLE Employee (
+    employee_id INT PRIMARY KEY,
+    branch_id INT NOT NULL,
+    role employee_role_enum NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(20) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    FOREIGN KEY (branch_id) REFERENCES Branch(branch_id) ON DELETE CASCADE
+);
+
+CREATE TABLE AuditLog (
+    log_id INT PRIMARY KEY,
+    user_id INT NOT NULL,
+    user_type user_type_enum NOT NULL,
+    action TEXT NOT NULL,
+    action_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+

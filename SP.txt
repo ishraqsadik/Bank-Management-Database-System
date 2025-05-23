@@ -1,0 +1,96 @@
+
+-- Procedure to add funds to an account and return new balance
+CREATE OR REPLACE PROCEDURE sp_add_funds(
+    IN p_account_id INT,
+    IN p_deposit_amount NUMERIC,
+    OUT p_new_balance NUMERIC
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE Account
+    SET balance = balance + p_deposit_amount
+    WHERE account_id = p_account_id;
+
+    SELECT balance INTO p_new_balance
+    FROM Account
+    WHERE account_id = p_account_id;
+END;
+$$;
+
+
+-- Procedure to adjust customer credit score with bounds checking and conditional logic
+CREATE OR REPLACE PROCEDURE sp_adjust_credit_score(
+    IN p_customer_id INT,
+    IN p_score_delta INT,
+    OUT p_new_score INT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_current_score INT;
+BEGIN
+    SELECT credit_score INTO v_current_score
+    FROM Customer
+    WHERE customer_id = p_customer_id;
+
+    p_new_score := v_current_score + p_score_delta;
+
+    IF p_new_score < 300 THEN
+        p_new_score := 300;
+    ELSIF p_new_score > 850 THEN
+        p_new_score := 850;
+    END IF;
+
+    UPDATE Customer
+    SET credit_score = p_new_score
+    WHERE customer_id = p_customer_id;
+END;
+$$;
+
+
+-- Function to calculate the average transaction amount for a given account
+CREATE OR REPLACE FUNCTION fn_avg_transaction_amount(
+    p_account_id INT
+) RETURNS NUMERIC
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_avg NUMERIC;
+BEGIN
+    SELECT AVG(amount) INTO v_avg
+    FROM Transaction
+    WHERE account_id = p_account_id;
+
+    -- Return 0 if no transactions exist
+    RETURN COALESCE(v_avg, 0);
+END;
+$$;
+
+
+-- Function to determine customer risk status based on credit score
+CREATE OR REPLACE FUNCTION fn_customer_risk_status(
+    p_customer_id INT
+) RETURNS TEXT
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_score INT;
+    v_status TEXT;
+BEGIN
+    SELECT credit_score INTO v_score
+    FROM Customer
+    WHERE customer_id = p_customer_id;
+
+    -- Categorize risk
+    IF v_score >= 750 THEN
+        v_status := 'Preferred';
+    ELSIF v_score >= 650 THEN
+        v_status := 'Standard';
+    ELSE
+        v_status := 'Subprime';
+    END IF;
+
+    RETURN v_status;
+END;
+$$;

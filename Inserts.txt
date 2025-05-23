@@ -1,0 +1,164 @@
+-- ==============================
+-- Insert Data into Branch Table
+-- ==============================
+INSERT INTO Branch (branch_id, branch_name, address, phone) VALUES
+  (1, 'Downtown Branch', '123 Main St, Cityville', '555-0101'),
+  (2, 'Uptown Branch', '456 Elm St, Cityville', '555-0102'),
+  (3, 'Suburban Branch', '789 Oak St, Townsville', '555-0103'),
+  (4, 'Eastside Branch', '101 Maple Ave, Cityville', '555-0104'),
+  (5, 'Westside Branch', '202 Pine Ave, Townsville', '555-0105'),
+  (6, 'Central Branch', '303 Cedar Rd, Metropolis', '555-0106'),
+  (7, 'North Branch', '404 Birch Rd, Metropolis', '555-0107'),
+  (8, 'South Branch', '505 Walnut St, Cityville', '555-0108'),
+  (9, 'Harbor Branch', '606 Dockside Ln, Seaside', '555-0109'),
+  (10, 'Airport Branch', '707 Runway Rd, Airville', '555-0110');
+
+-- ==============================
+-- Insert Data into Customer Table
+-- ==============================
+INSERT INTO Customer (customer_id, first_name, last_name, date_of_birth, email, phone, address, identification_number, credit_score, created_at) VALUES
+  (1, 'John', 'Doe', '1980-05-15', 'john.doe@example.com', '555-1001', '10 Downing St, London', 'ID1001', 720, CURRENT_TIMESTAMP),
+  (2, 'Jane', 'Smith', '1990-08-22', 'jane.smith@example.com', '555-1002', '20 Baker St, London', 'ID1002', 680, CURRENT_TIMESTAMP),
+  (3, 'Alice', 'Johnson', '1975-12-05', 'alice.johnson@example.com', '555-1003', '30 King Rd, London', 'ID1003', 750, CURRENT_TIMESTAMP),
+  (4, 'Bob', 'Brown', '1985-03-18', 'bob.brown@example.com', '555-1004', '40 Queen Rd, London', 'ID1004', 690, CURRENT_TIMESTAMP),
+  (5, 'Carol', 'White', '1992-11-11', 'carol.white@example.com', '555-1005', '50 Prince St, London', 'ID1005', 710, CURRENT_TIMESTAMP),
+  (6, 'David', 'Green', '1988-07-07', 'david.green@example.com', '555-1006', '60 Duke St, London', 'ID1006', 730, CURRENT_TIMESTAMP),
+  (7, 'Eva', 'Black', '1978-09-09', 'eva.black@example.com', '555-1007', '70 Earl St, London', 'ID1007', 800, CURRENT_TIMESTAMP),
+  (8, 'Frank', 'Blue', '1995-02-20', 'frank.blue@example.com', '555-1008', '80 Baron St, London', 'ID1008', 660, CURRENT_TIMESTAMP),
+  (9, 'Grace', 'Red', '1983-06-30', 'grace.red@example.com', '555-1009', '90 Viscount St, London', 'ID1009', 770, CURRENT_TIMESTAMP),
+  (10, 'Henry', 'Gold', '1970-01-01', 'henry.gold@example.com', '555-1010', '100 Marquis St, London', 'ID1010', 820, CURRENT_TIMESTAMP);
+
+-- ==============================
+-- Insert Data into Account Table
+-- ==============================
+INSERT INTO Account (account_id, customer_id, branch_id, account_type, balance, interest_rate, status, created_at) VALUES
+  (1, 1, 1, 'Checking', 1500.00, NULL, 'Active', CURRENT_TIMESTAMP),
+  (2, 2, 2, 'Savings', 2500.50, 1.50, 'Active', CURRENT_TIMESTAMP),
+  (3, 3, 3, 'Credit', 0.00, NULL, 'Active', CURRENT_TIMESTAMP),
+  (4, 4, 4, 'Checking', 800.00, NULL, 'Active', CURRENT_TIMESTAMP),
+  (5, 5, 5, 'Savings', 3200.75, 2.00, 'Active', CURRENT_TIMESTAMP),
+  (6, 6, 6, 'Credit', 0.00, NULL, 'Inactive', CURRENT_TIMESTAMP),
+  (7, 7, 7, 'Checking', 5600.00, NULL, 'Flagged', CURRENT_TIMESTAMP),
+  (8, 8, 8, 'Savings', 4300.25, 1.75, 'Active', CURRENT_TIMESTAMP),
+  (9, 9, 9, 'Credit', 0.00, NULL, 'Active', CURRENT_TIMESTAMP),
+  (10, 10, 10, 'Checking', 1200.00, NULL, 'Active', CURRENT_TIMESTAMP);
+
+-- ==============================
+-- Insert Data into Beneficiary Table
+-- ==============================
+INSERT INTO Beneficiary (beneficiary_id, beneficiary_name, relationship) VALUES
+  (1, 'Michael Doe', 'Spouse'),
+  (2, 'Sarah Smith', 'Sibling'),
+  (3, 'Robert Johnson', 'Parent'),
+  (4, 'Laura Brown', 'Child'),
+  (5, 'Emily White', 'Friend'),
+  (6, 'Daniel Green', 'Spouse'),
+  (7, 'Olivia Black', 'Parent'),
+  (8, 'Liam Blue', 'Sibling'),
+  (9, 'Sophia Red', 'Child'),
+  (10, 'Noah Gold', 'Friend');
+
+-- ============================================
+-- Insert Data into AccountBeneficiary Junction Table
+-- ============================================
+INSERT INTO AccountBeneficiary (account_id, beneficiary_id) VALUES
+  (1, 1),
+  (2, 2),
+  (3, 3),
+  (4, 4),
+  (5, 5),
+  (6, 6),
+  (7, 7),
+  (8, 8),
+  (9, 9),
+  (10, 10);
+
+-- ==============================
+-- Insert Data into Transaction Table
+-- ==============================
+INSERT INTO Transaction (transaction_id, account_id, transaction_type, amount, timestamp, transaction_date) VALUES
+  (1, 1, 'Deposit', 500.00, CURRENT_TIMESTAMP, '2025-03-10'),
+  (2, 2, 'Withdrawal', 200.00, CURRENT_TIMESTAMP, '2025-03-11'),
+  (3, 3, 'Transfer', 1000.00, CURRENT_TIMESTAMP, '2025-03-09'),
+  (4, 4, 'Payment', 150.00, CURRENT_TIMESTAMP, '2025-03-08'),
+  (5, 5, 'Deposit', 750.00, CURRENT_TIMESTAMP, '2025-03-07'),
+  (6, 6, 'Withdrawal', 300.00, CURRENT_TIMESTAMP, '2025-03-06'),
+  (7, 7, 'Transfer', 450.00, CURRENT_TIMESTAMP, '2025-03-05'),
+  (8, 8, 'Payment', 600.00, CURRENT_TIMESTAMP, '2025-03-04'),
+  (9, 9, 'Deposit', 850.00, CURRENT_TIMESTAMP, '2025-03-03'),
+  (10, 10, 'Withdrawal', 120.00, CURRENT_TIMESTAMP, '2025-03-02');
+
+-- ==============================
+-- Insert Data into CreditCard Table
+-- ==============================
+INSERT INTO CreditCard (card_id, customer_id, card_number, expiration_date, credit_limit, status) VALUES
+  (1, 1, '4000000000000001', '2026-12-31', 5000.00, 'Active'),
+  (2, 2, '4000000000000002', '2025-11-30', 3000.00, 'Blocked'),
+  (3, 3, '4000000000000003', '2027-06-30', 7000.00, 'Active'),
+  (4, 4, '4000000000000004', '2026-01-31', 4500.00, 'Closed'),
+  (5, 5, '4000000000000005', '2028-08-31', 6000.00, 'Active'),
+  (6, 6, '4000000000000006', '2025-05-31', 3500.00, 'Active'),
+  (7, 7, '4000000000000007', '2027-03-31', 8000.00, 'Blocked'),
+  (8, 8, '4000000000000008', '2026-09-30', 5500.00, 'Active'),
+  (9, 9, '4000000000000009', '2028-12-31', 9000.00, 'Closed'),
+  (10, 10, '4000000000000010', '2027-11-30', 4000.00, 'Active');
+
+-- ==============================
+-- Insert Data into Loan Table
+-- ==============================
+INSERT INTO Loan (loan_id, customer_id, loan_type, amount, interest_rate, term_months, status, date_taken_out) VALUES
+  (1, 1, 'Personal', 10000.00, 5.50, 36, 'Approved', '2025-01-15'),
+  (2, 2, 'Home', 250000.00, 3.75, 360, 'Active', '2024-12-01'),
+  (3, 3, 'Auto', 20000.00, 4.00, 60, 'Approved', '2025-02-20'),
+  (4, 4, 'Business', 50000.00, 6.25, 48, 'Pending', '2025-03-01'),
+  (5, 5, 'Personal', 15000.00, 5.00, 36, 'Closed', '2024-11-10'),
+  (6, 6, 'Home', 300000.00, 3.50, 360, 'Rejected', '2025-01-05'),
+  (7, 7, 'Auto', 18000.00, 4.25, 60, 'Approved', '2025-02-15'),
+  (8, 8, 'Business', 75000.00, 7.00, 72, 'Active', '2025-03-05'),
+  (9, 9, 'Personal', 12000.00, 5.75, 24, 'Approved', '2024-10-20'),
+  (10, 10, 'Home', 220000.00, 3.85, 360, 'Active', '2025-01-25');
+
+-- ==============================
+-- Insert Data into LoanPayment Table
+-- ==============================
+INSERT INTO LoanPayment (payment_id, loan_id, amount_paid, payment_date) VALUES
+  (1, 1, 300.00, '2025-03-01'),
+  (2, 2, 1500.00, '2025-03-02'),
+  (3, 3, 400.00, '2025-03-03'),
+  (4, 4, 500.00, '2025-03-04'),
+  (5, 5, 350.00, '2025-03-05'),
+  (6, 6, 1200.00, '2025-03-06'),
+  (7, 7, 450.00, '2025-03-07'),
+  (8, 8, 600.00, '2025-03-08'),
+  (9, 9, 250.00, '2025-03-09'),
+  (10, 10, 1000.00, '2025-03-10');
+
+-- ==============================
+-- Insert Data into Employee Table
+-- ==============================
+INSERT INTO Employee (employee_id, branch_id, role, first_name, last_name, email, phone, password_hash) VALUES
+  (1, 1, 'Teller', 'Laura', 'Miller', 'laura.miller@bank.com', '555-2001', 'hash1'),
+  (2, 2, 'Loan Officer', 'James', 'Wilson', 'james.wilson@bank.com', '555-2002', 'hash2'),
+  (3, 3, 'Administrator', 'Patricia', 'Moore', 'patricia.moore@bank.com', '555-2003', 'hash3'),
+  (4, 4, 'IT', 'Robert', 'Taylor', 'robert.taylor@bank.com', '555-2004', 'hash4'),
+  (5, 5, 'Manager', 'Linda', 'Anderson', 'linda.anderson@bank.com', '555-2005', 'hash5'),
+  (6, 6, 'Teller', 'Michael', 'Thomas', 'michael.thomas@bank.com', '555-2006', 'hash6'),
+  (7, 7, 'Loan Officer', 'Barbara', 'Jackson', 'barbara.jackson@bank.com', '555-2007', 'hash7'),
+  (8, 8, 'Administrator', 'William', 'White', 'william.white@bank.com', '555-2008', 'hash8'),
+  (9, 9, 'IT', 'Elizabeth', 'Harris', 'elizabeth.harris@bank.com', '555-2009', 'hash9'),
+  (10, 10, 'Manager', 'David', 'Martin', 'david.martin@bank.com', '555-2010', 'hash10');
+
+-- ==============================
+-- Insert Data into AuditLog Table
+-- ==============================
+INSERT INTO AuditLog (log_id, user_id, user_type, action, action_time) VALUES
+  (1, 1, 'Customer', 'Logged in', CURRENT_TIMESTAMP),
+  (2, 2, 'Customer', 'Viewed account details', CURRENT_TIMESTAMP),
+  (3, 3, 'Customer', 'Transferred funds', CURRENT_TIMESTAMP),
+  (4, 4, 'Customer', 'Paid credit card bill', CURRENT_TIMESTAMP),
+  (5, 5, 'Customer', 'Applied for a loan', CURRENT_TIMESTAMP),
+  (6, 1, 'Employee', 'Approved loan', CURRENT_TIMESTAMP),
+  (7, 2, 'Employee', 'Blocked credit card', CURRENT_TIMESTAMP),
+  (8, 3, 'Employee', 'Updated customer profile', CURRENT_TIMESTAMP),
+  (9, 4, 'Employee', 'Logged out', CURRENT_TIMESTAMP),
+  (10, 5, 'Employee', 'Reset password', CURRENT_TIMESTAMP);

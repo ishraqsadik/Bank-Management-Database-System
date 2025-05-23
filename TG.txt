@@ -1,0 +1,76 @@
+
+-- Logging table for triggers
+CREATE TABLE IF NOT EXISTS TriggerLog (
+    log_id SERIAL PRIMARY KEY,
+    table_name TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    trigger_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Statement-level DELETE trigger on transaction
+CREATE OR REPLACE FUNCTION trg_after_delete_transaction()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO TriggerLog(table_name, event_type)
+    VALUES ('transaction', 'DELETE');
+    RETURN NULL;
+END;
+$$;
+
+CREATE TRIGGER tr_after_delete_transaction
+AFTER DELETE ON transaction
+FOR EACH STATEMENT
+EXECUTE FUNCTION trg_after_delete_transaction();
+
+-- Row-level INSERT trigger on transaction
+CREATE OR REPLACE FUNCTION trg_after_insert_transaction()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO TriggerLog(table_name, event_type)
+    VALUES ('transaction', 'INSERT');
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER tr_after_insert_transaction
+AFTER INSERT ON transaction
+FOR EACH ROW
+EXECUTE FUNCTION trg_after_insert_transaction();
+
+-- Statement-level UPDATE trigger on account
+CREATE OR REPLACE FUNCTION trg_after_update_account()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO TriggerLog(table_name, event_type)
+    VALUES ('account', 'UPDATE');
+    RETURN NULL;
+END;
+$$;
+
+CREATE TRIGGER tr_after_update_account
+AFTER UPDATE ON account
+FOR EACH STATEMENT
+EXECUTE FUNCTION trg_after_update_account();
+
+-- Statement-level TRUNCATE trigger on auditlog
+CREATE OR REPLACE FUNCTION trg_after_truncate_auditlog()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO TriggerLog(table_name, event_type)
+    VALUES ('auditlog', 'TRUNCATE');
+    RETURN NULL;
+END;
+$$;
+
+CREATE TRIGGER tr_after_truncate_auditlog
+AFTER TRUNCATE ON auditlog
+FOR EACH STATEMENT
+EXECUTE FUNCTION trg_after_truncate_auditlog();
